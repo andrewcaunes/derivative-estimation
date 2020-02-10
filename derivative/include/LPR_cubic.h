@@ -10,6 +10,8 @@ class LPR_cubic
         LPR_cubic(double Yn[], MatrixXd Xn, int nn, float hn);
         virtual ~LPR_cubic();
         double value(double x);
+        Vector4d B;
+
    
 
 
@@ -19,7 +21,6 @@ class LPR_cubic
         float h = 1;
         VectorXd Y;
         MatrixXd Xp;
-        Vector4d B;
         int n;
 };
 

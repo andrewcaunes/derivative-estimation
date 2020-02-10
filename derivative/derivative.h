@@ -12,4 +12,12 @@
 #include "include/LPR_cubic.h"
 #include <fstream>
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <cmath>
+#include <iostream>
+#include <vector> 
+#include <map>
+#include "kde.h"
+
 // TODO: Reference additional headers your program requires here.
