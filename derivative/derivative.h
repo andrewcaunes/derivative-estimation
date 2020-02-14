@@ -11,7 +11,7 @@
 #include "include/annex.h"
 #include "include/LPR_cubic.h"
 #include <fstream>
-
+#include <algorithm>
 #include <stdlib.h>
 #include <stdint.h>
 #include <cmath>

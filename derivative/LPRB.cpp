@@ -13,6 +13,7 @@ LPRB::LPRB(double Yn[], MatrixXd Xn, int nn, float hn)
 
 double LPRB::value(double x)
 {
+
     double *weights = new double[n];
     double* dif_squared = new double;
     for(int i = 0 ; i < n ; i++){
@@ -36,7 +37,9 @@ double LPRB::RSS(float hn)
     h = hn;
     double sum(0);
     for(int i=0 ; i<n ; i++){
-        sum = sum + pow(LPRB::value(Xp(i,1))-Y[i],2);
+        if (i % 20 == 0) {
+            sum = sum + pow(LPRB::value(Xp(i, 1)) - Y[i], 2);
+        }
     }
     return sum;
 }
