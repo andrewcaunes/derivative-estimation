@@ -1,5 +1,15 @@
 ﻿// derivative.cpp : Defines the entry point for the application.
-//
+
+/* This program is a C++ implementation of a methode for derivative estimation in random design.
+The methode is thoroughly described in "Derivative Estimation in Random Design", from Yu Liu, Kris De Brabanter.
+Details about the method are given in annex.cpp, along with an explanation of each function.
+*/
+
+/*
+This file contains the main function of the program.
+It uses multiple functions from annex.cpp.
+It can be used to (optionally) generate random data and then compute the derivative of the transformation and then (optinally) store the data in a csv file.
+*/
 
 #include "derivative.h"
 
@@ -7,324 +17,89 @@
 using Eigen::MatrixXd;
 using namespace std;
 
+
 int main()
 {
-    // SMOOTHING |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-
-    //cout << "\n Making data : __________________________" << endl;
-    //default_random_engine generator;
-    //gamma_distribution<double> distribution1(2.0,2.0);
-    //normal_distribution<double> distribution2(0, 0.1);
-
-    ////
-    ////    for(int i = 0; i<10 ; i++){
-    ////        cout << distribution(generator) << endl;
-    ////    }
-
-
-    //    //TEST LPRB
-    ////const string file_name("C:/Users/andrew-pc/Desktop/data.txt");
-    ////const string file_name2("C:/Users/andrew-pc/Desktop/data2.txt");
-    ////ofstream file(file_name.c_str());
-    ////ofstream file2(file_name2.c_str());
-    //const int n(200);
-    //double X[n];
-    //double Y[n];//TEST
-    //for (int i = 0; i < 200; i++) {
-    //    X[i] = distribution1(generator);
-    //    Y[i] = pow(X[i], 3) + 2 * pow(X[i], 2) + X[i] - 3 + distribution2(generator);
-    //    //TEST cout << "\n X[" << i << "]=" << X[i] << ", Y[" << i << "]=" << Y[i] << endl;
-    //}
-
-
-
-    //MatrixXd Xp;
-    //makeXp(Xp, X, n);
-    //float h(1);
-    //cout << "\n End Making data : __________________________" << endl;
-    //cout << "\n Fitting to data : __________________________" << endl;
-
-
-    //LPR_cubic o1 = LPR_cubic(Y, Xp, n, h);
-
-    //cout << "\nEnd fitting to data : __________________________" << endl;
-
-    ///*TEST double Yp[n];
-    //double sum(0);
-
-    //for (int i = 0; i < 200; i++) {
-    //    Yp[i] = o1.value(X[i]);
-    //    sum += pow(Y[i] - Yp[i], 2);
-    //}
-    //cout << "\n RS : " << sum << endl;
-    //int i1(0);
-    //cout << "\n i1 should be "<< pow(i1,3)+2*pow(i1,2)+i1-3 <<" but is really " << o1.value(i1) <<endl;
-    //cout << "\n B: " << o1.B << endl;*/
-
-    // COMPUTE k ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-
-    const int n(200);
-    double X[n];
-    double Y[n];
-
-    cout << "\n Making data : __________________________" << endl;
-    default_random_engine generator;
-    uniform_real_distribution<double> distribution1(0,10.0);
-    normal_distribution<double> distribution2(0, 0.1);
-    for (int i = 0; i < n; i++) {
-        X[i] = distribution1(generator);
-        Y[i] = sin(X[i]);
-    }
-
-    KDE* kde = new KDE();
-    kde->set_kernel_type(1);
-    kde->set_bandwidth_opt_type(1);
-
-    for (int i = 0; i < n; i++) {
-        kde->add_data(X[i]);
-    }
-
-    //const string file_name("C:/Users/andrew-pc/Desktop/data.txt");
-    ////const string file_name2("C:/Users/andrew-pc/Desktop/data2.txt");
-    //ofstream file(file_name.c_str());
-    ////ofstream file2(file_name2.c_str());
-    //for (int i = 0; i < 200; i++) {
-    //    if (file) {
-    //        file << i * 0.05 << "," << kde->pdf(i * 0.05) << endl;
-    //    }
-    //}
-    //file.close();
-
-    // CALCUL B
-    double B(0);
-
-    double U[n];
-    for (int i = 0; i < n; i++) {
-        U[i] = kde->cdf(X[i]);
-    }
-    // SORTING U AND Y
-    vector<vector<double>> map;
-    for (int i = 0; i < n; i++) {
-        map.push_back(vector<double>(0));
-        map[i].push_back(U[i]);
-        map[i].push_back(Y[i]);
-    };
-    sort(map.begin(), map.end(), sort_map);   
-    for (int i = 0; i < n; i++) {
-        U[i] = map[i][0];
-        Y[i] = map[i][1];
-    }
-
-    // END SORTING
-
-    for (int i = 0; i < n; i++) {
-        cout << " U[i] " << U[i] << " Y[i] " << Y[i] << endl;
-
-    };
-    
-
-    MatrixXd Up;
-    makeXp(Up, U, n);
-    LPR_cubic approx = LPR_cubic(Y,Up,n,0.01);
-    
+    // INITIALIZATION
 
     
-
-
-    double* max = new double;
-    *max = 0;
-    double* tmp = new double;
-    *tmp = 0;
-    for (int i = 0; i < 30; i++) {
-        approx.value((double)i * 0.03);
-        *tmp += abs(approx.B(3) * 6 * (double)i*0.03 + 2*approx.B(2));
-        /*if (*tmp > *max){
-            *max = *tmp;
-        }*/
-    }
-    //B = *tmp / 30;
-    B = 10;
-
-    cout << "\n B : " << B << endl;
-
-    delete max;
-    delete tmp;
-
-    // FIN CALCUL B
-
-    // CALCUL SIGMA
+    double *X = new double[n];
+    double *Y = new double[n];
+    double *U = new double[n];
+    double B(10);
     double sigma2(0);
-    for (int i = 0; i < n - 2; i++) {
-        sigma2 += pow((0.809 * Y[i] - 0.5 * Y[i + 1] - 0.309 * Y[i + 2]),2);
-    }
-    sigma2 *= (1 / ((double)n - 2));
+    int k(10);
+    MatrixXd* Up = new MatrixXd;
+    double* Yd = new double[n];
+    double* Yn = new double[n - 2];
 
-    cout << "sigma2 : " << sigma2 << endl;
-
-    // FIN CALCUL SIGMA
-
-    // CALCUL k
-    int k;
-    double* min = new double;
-    *min = 10000;
-    int* argmin = new int;
-    *argmin = n;
-    tmp = new double;
-
-    for (int i = 1; i < (int)(((double)n - 1) / 2); i++) {
-        *tmp = pow(B * 3 * i * ((double)i + 1) / 4 / ((double)n + 1) / (2 * (double)i + 1), 2);
-        *tmp += 3 * sigma2 * ((double)n + 1) * ((double)n + 1) / i / ((double)i + 1) / (2 * (double)i + 1);
-        if (*tmp < *min){
-            *min = *tmp;
-            *argmin = i;
-        }
-    }
-    k = *argmin;
-    cout << "\k : " << k << endl;
-
-    delete argmin;
-    delete min;
-    delete tmp;
-    delete kde;
-
-    // FIN CALCUL K
-
-    double weights[n][n];
-    double* sum = new double;
-    int* ki = new int;
-    *ki = 0;
-
-    *sum = 0;
-    for (int i = 1; i < n; i++) {
-        
-        for (int j = 0; j < n; j++) {
-            if (i <= n - k && i >= k + 1) {
-                
-                *sum = 0;
-                for (int l = 1; l <= k; l++) {
-                    *sum += pow(U[i + l - 1] - U[i - l -1],2);
-                }
-                weights[i][j] = pow((U[i + j - 1] - U[i - j - 1]), 2) / *sum;
-            }
-            else if (i<k + 1) {
-                *ki = i - 1;
-                *sum = 0;
-                if (j <= *ki) {
-                    for (int l = 1; l <= *ki; l++) {
-                        *sum += pow(U[i + l - 1] - U[i - l - 1], 2);
-                    }
-                    for (int l = *ki+1; l <= k; l++) {
-                        *sum += pow(U[i + l - 1] - U[i - 1], 2);
-                    }
-                    weights[i][j] = pow(U[i + j - 1] - U[i - j - 1], 2) / *sum;
-                }else if (j > *ki) {
-                    for (int l = 1; l <= *ki; l++) {
-                        *sum += pow(U[i + l - 1] - U[i - l - 1], 2);
-                    }
-                    for (int l = *ki+1; l <= k; l++) {
-                        *sum += pow(U[i + l - 1] - U[i - 1], 2);
-                    }
-                    weights[i][j] = pow(U[i + j - 1] - U[i - 1], 2) / *sum;
-                }
-            }else if (i > n - k) {
-                *ki = n - i;
-                *sum = 0;
-                //cout << "\n i : " << i << " j : " << j << endl;
-                if (j <= *ki) {
-                    for (int l = 1; l <= *ki; l++) {
-                        //cout << "\n i : " << i << ", l : " << l << endl;
-                        *sum += pow(U[i + l - 1] - U[i - l - 1], 2);
-                    }
-                    for (int l = *ki+1; l <= k; l++) {
-                        *sum += pow(U[i - 1] - U[i-l - 1], 2);
-                    }
-                    weights[i][j] = pow(U[i + j - 1] - U[i - j - 1], 2) / *sum;
-                }
-                else if (j > * ki) {
-                    for (int l = 1; l <= *ki; l++) {
-                        *sum += pow(U[i + l - 1] - U[i - l - 1], 2);
-                    }
-                    for (int l = *ki+1; l <= k; l++) {
-                        *sum += pow(U[i - 1] - U[i-l - 1], 2);
-                    }
-                    weights[i][j] = pow(U[i - 1] - U[i-j - 1], 2) / *sum;
-                }
-            }
-        }
-    }
+    LPR_cubic* final;
+    dimensions* weights = new dimensions[n];
+    KDE* kde = new KDE();
     
-    double Yd[n];
 
-    for (int i = 1; i < n; i++) {
-        Yd[i-1] = 0;
-        if (i <= n - k && i >= k + 1) {
-            for (int j = 1; j <= k; j++) {
-                Yd[i-1] += weights[i-1][j-1] * (Y[i + j - 1] - Y[i - j - 1]) / (U[i + j - 1] - U[i - j - 1]);
-                
-            }
-        }
-        else if (i < k + 1) {
-            *ki = i - 1;
-            if (i > 1) {
-                for (int j = 1; j <= *ki; j++) {
-                    if (i == 1) {
-                    }
-                    Yd[i - 1] += weights[i - 1][j - 1] * (Y[i + j - 1] - Y[i - j - 1]) / (U[i + j - 1] - U[i - j - 1]);
+    // START 
+    
+    // Random data is generated with the createData function. The type of distribution and the transformation between X and Y 
+    // can be chosen in annex.cpp by changing these manually (the library used is <random>).
+    cout << "\n Generating data..\n.\n." << endl;
+    createData(X, Y, n);
+    cout << "\n Data generated successfully." << endl;
 
-                }
-            }
-            for (int j = *ki+1; j <= k; j++) {
-                Yd[i-1] += weights[i-1][j-1] * (Y[i + j - 1] - Y[i - 1]) / (U[i + j - 1] - U[i - 1]);
-                
-            }
-            
-        }
-        else if (i > n - k) {
-            *ki = n-i;
-            for (int j = 1; j <= *ki; j++) {
-                Yd[i-1] += weights[i-1][j-1] * (Y[i + j - 1] - Y[i - j - 1]) / (U[i + j - 1] - U[i - j - 1]);
-            }
-            for (int j = *ki+1; j <= k; j++) {
-                Yd[i-1] += weights[i-1][j-1] * (Y[i - 1] - Y[i-j - 1]) / (U[i - 1] - U[i-j - 1]);
-            }
-        }
-    }
+    // Data is transformed so that it is initially uniformly distributed. It is also ordered.
+    cout << "\n Probability integral transform of data..\n  .\n  ." << endl;
+    makeKernelDensityEstimator(kde, X, n);
+    makeU(U, X, Y, kde, n);
+    makeXp(*Up, U, n);
+    cout << "\n Probability integral transform successful." << endl;
+    
+    // The optimal number of quotients to use in the computation of derivatives is computed here.
+    // The computation of B can take some time since the data is smoothed first, as indicated in the paper.
+    cout << "\n Computing k (nbr of quotients to use for derivative computation)..\n  .\n  ." << endl;
+    computeB(Up, Y, n, &B);
+    computeSigma2(&sigma2, Y, n);    
+    computeK(&k, B, sigma2, n);
+    cout << "\n Optimal k computed successfully: k = " << k << endl;
 
-    removeRow(Up, 49);
-    removeRow(Up, 0);
-    double Yn[n - 2];
+
+    // The weights for each quotient is computed.
+    cout << "\n Computing weights for quotients..\n  .\n  ." << endl;
+    computeWeights(weights, n, k, U);
+    cout << "\n Weights computed successfully." << endl;
+
+    // The derivative data is computed.
+    cout << "\n Computing derivative estimates..\n  .\n  ." << endl;
+    computeDerivative(Yd, Y, U, weights, n, k);
+    cout << "\n Derivative estimates computed successfully." << endl;
+
+    
+    delete[] Y;
+    delete[] weights;
+    // The following lines remove boundary data which is often very imprecise
+    removeRow(*Up, n-1);
+    removeRow(*Up, 0);
     for (int i = 0; i < n - 2; i++) {
         Yn[i] = Yd[i + 1];
+        U[i] = U[i + 1];
+        X[i] = X[i + 1];
     }
-    cout << Up;
-    LPR_cubic final = LPR_cubic(Yn, Up, n-2, 1);
-    cout << "\n val : " << final.value(U[47]);
+    delete[] Yd;
 
-    const string file_name("C:/Users/andrew-pc/Desktop/data.txt");
-    ofstream file(file_name.c_str());
-    const string file_name2("C:/Users/andrew-pc/Desktop/data2.txt");
-    ofstream file2(file_name2.c_str());
+    // The derivative data is smoothed with a cubic polynomial local regression
+    cout << "\n Smoothing data..\n  .\n  ." << endl;
+    final = new LPR_cubic(Yn, *Up, n-2, 1);
+    cout << "\n Data smoothed successfully" << endl;
 
-    /*for (int i = 0; i < n - 2; i++) {
-        cout << "weight"<<i<<" : " << final.waits[i] <<endl;
-        file2 << i << "," << final.waits[i] << endl;
-    }*/
+    // The derivative data is written, before and after smoothing, in a csv file at the location specified in annex.h (by constants at the top of the file).
+    cout << "\n Writing down data in csv file..\n  .\n  ." << endl;
+    writeData(Yn, U, X, kde, final);
+    cout << "\n Data written down in csv file successfully." << endl;
 
+    // END
     
-    for (int i = 0; i < n-2; i++) {
-        if (file) {
-            file << U[i] << "," << Yn[i] << endl;
-        }
-    }
-
-    for (int i = 0; i < 1000; i++) {
-        if (file2) {
-            file2 << 0.001*i << "," << final.value(i*0.001) << endl;
-        }
-    }
-
-
-    delete sum;
+    delete final;
+    delete kde;
+    delete[] X;
 
     return 0;
 }

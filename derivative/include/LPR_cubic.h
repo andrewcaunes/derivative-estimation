@@ -1,6 +1,8 @@
+// This file defines the LPR_cubic class, used as a local polynomial regressor, using gaussian kernel
+
 #ifndef LPR_CUBIC_H
 #define LPR_CUBIC_H
-#include <C:\Users\andrew-pc\programmation\C\eigen-3.3.7\eigen-3.3.7\Eigen\Dense>
+#include <eigen-3.3.7\Eigen\Dense>
 #include <vector>
 
 
@@ -13,19 +15,14 @@ class LPR_cubic
         LPR_cubic(double Yn[], MatrixXd Xn, int nn, float hn);
         virtual ~LPR_cubic();
         double value(double x);
-        Vector4d B;
-        vector<double> waits;
-
-   
-
-
-    protected:
 
     private:
         float h = 1;
         VectorXd Y;
         MatrixXd Xp;
         int n;
+        Vector4d B;
+
 };
 
 #endif // LPR_CUBIC_H
