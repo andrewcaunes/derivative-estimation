@@ -1,13 +1,13 @@
 ## derivative-estimation
 implementation of derivative estimation by quotient difference - c++
 
-This project implements the derivative estimation method in random design described in the following paper :
+This project implements the derivative estimation method in random design described in the following paper :_
 "Derivative Estimation in Random Design", from Yu Liu, Kris De Brabanter
 
 ## INSTALLATION
-You will need the Eigen library, available here : http://eigen.tuxfamily.org/dox/eigen-doc.tgz
-One only needs to place the eigen-3.x.x folder (containing the Eigen folder) inside the include folder.
-The project is built using CMake (more information https://docs.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio?view=vs-2019)
+You will need the Eigen library, available here : http://eigen.tuxfamily.org/dox/eigen-doc.tgz_
+One only needs to place the eigen-3.x.x folder (containing the Eigen folder) inside the include folder._
+The project is built using CMake (more information https://docs.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio?view=vs-2019)_
 I personally used Visual Studio software on a Windows 10 distribution.
 
 ## USE
