@@ -7,7 +7,8 @@ This project implements the derivative estimation method in random design descri
 ## INSTALLATION
 You will need the Eigen library, available here : http://eigen.tuxfamily.org/dox/eigen-doc.tgz
 One only needs to place the eigen-3.x.x folder (containing the Eigen folder) inside the include folder.
-The project is built using CMake
+The project is built using CMake (more information https://docs.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio?view=vs-2019)
+I personally used Visual Studio software on a Windows 10 distribution.
 
 ## USE
 The derivative.cpp file containing the main function will allow you to create random data, apply the method for derivative estimation
