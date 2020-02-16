@@ -1,6 +1,6 @@
 ﻿// derivative.cpp : Defines the entry point for the application.
 
-/* This program is a C++ implementation of a methode for derivative estimation in random design.
+/* This program is a C++ implementation of a method for derivative estimation in random design.
 The methode is thoroughly described in "Derivative Estimation in Random Design", from Yu Liu, Kris De Brabanter.
 Details about the method are given in annex.cpp, along with an explanation of each function.
 */
