@@ -68,6 +68,11 @@ void removeRow(Eigen::MatrixXd& matrix, unsigned int rowToRemove)
   * \return None
   */
 void createData(double X[], double Y[], const int n) {
+    // This function generates some random data by using the <random> library.
+    // You can easily modify the type of generated data by changing the class and parameters of "distribution1" (independent variable X data distribution)
+    // , the class of "distribution2" (errors), and the transformation between Y and X.
+    // Initially, the independent variable data is uniformly distributed in [0,20] and the transformation is merely a cosine.
+
     default_random_engine generator;
     uniform_real_distribution<double> distribution1(0,20);
     normal_distribution<double> distribution2(0, 0.2 * 0.2);
